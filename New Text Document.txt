@@ -1,0 +1,194 @@
+https://github.com/Swarnotaj003/ShopKart-E-commerce-Website?tab=readme-ov-file
+
+Home Page Specification
+
+1) Header
+Should remain visible while scrolling and include collapsible mobile menu
+Components
+- Global Search bar: real-time autocomplete suggestions using Elastic Search using Elastic Search/ DB query based on product names or SKUs.
+- Login/Signup - Show Login/Register when unauth and email when logged in
+Default password: 123456
+Cart icon: Show cart item count badge and navigate to cart/ checkout page.
+
+2) Banner Section (Two side by side cards)
+API: GET /banners (Static JSON allowed)
+Behaviour & Requirements:
+banners navigate to category listing pages using query parameters (e.g, /products?category=fashion)
+lazy load banner images
+include hover animations (scale or shadow)
+responsive: side by side on web, stacked on mobile
+
+3) Category Section
+API: GET /categories
+smooth hover, skeleton loaders before load data, responsive 2per row mobile, 4-6 per row on desktop
+
+4) Featured Products Section
+API: GET /products?featured=true&limit=8
+
+cliking a product opens its detail page
+lazy load product images
+use lazy loaders while fetching data
+
+---------------------------------
+
+Listing Page
+
+1) Search & URL Handling
+Search bar and filters must stay synchronized with URL all times.
+Behaviour:
+read search text from url parameter (?q=some-text)
+trigger new search when user presses Enter, changes filter, or update sorting.
+url must reflect correct filter: q, price, rating, sort
+
+2) Filters (Left sidebar)
+Rely on server side db query / elastic
+Price range slider
+select min-max price range
+update results on slider change or apply button
+
+3) Sorting
+server side
+Options:
+Low to high, high to low, rating, newest
+
+4) Product Results Grid
+Show total product count
+product card: image, title, rating, price, category
+infinite scroll pagination
+click a product navigates to detail page
+
+5) elastic api (if implemented)
+all search use one api request body
+
+POST /search/products
+{
+"query":"text",
+"price":{"min":0, "max":2000},
+"rating":4,
+"sort":"price_asc",
+"page": 1,
+"pageSize": 10
+}
+
+6) General requirements
+skeleton loaders while fetching
+empty state for no results
+responsive 2 mobile 3-4 desktop
+filters remain separate from results
+load products from api or mock service
+
+-----------------------------------------------------
+
+Product Page 
+
+1) Data & Routing
+API: /products/:id
+fetch details from API
+backend use redis catching
+frontend use cache status header (eg. X-Cache: HIT/MISS) and display as small label or text on page
+
+2) Main Content
+Home->Category->Product name breadcrumb navigation
+
+Image Gallery:
+Large main image with horizontal or vertical thumbnail strip
+Clicking thumbnail updates main image
+
+note: each image must be resized into original and thumbnail versions on backend.
+
+Product info block:
+Brand badge
+Stock badge(eg In Stock)
+
+3) Options & Quantity
+Color selection:
+Display selectable color chips (Black, Blue, White from mock data)
+
+Quantity Selector:
+Include - and + buttons to adjust quantity
+Minimum quantity is 1;maximum is constrained by stock or some upper cap.
+
+4) Actions
+Add to cart
+Adds the product with selected color and quantity to global cart stage
+show success feedback (toast/ snackbar or inline)
+Buy now
+Directly navigate to checkout page with only this product in cart
+
+5) General
+show loading
+show error state if product fails to load, including retry
+Responsive
+mobile: gallery above, product details below
+desktop: side by side
+all data from api
+
+-------------------------------------------------------------------------
+Cart Page
+
+1) Cart Items
+Display each cart item with following
+Product image, name, current price, original price (as striked through), discount badge, item total (price x quantity)
+
+Quantity Selector:
+- button decreases (minimum 1)
++ button increases 
+
+Include remove (trash btn) to delete item from cart.
+Behavior:
+Updating qty must update item total
+updating qty must update overall order summary
+removing item must update cart count in header.
+
+2) Order Summary (Right Side)
+Must display
+subtotal, discount, delivery charges, free delivery message based on defined order value threshold, total amount, savings text (eg You saved 64)
+
+Include a Proceed to Checkout button that navigates to /checkout
+
+3) Additional Features
+Continue Shopping button that returns to listing page
+Empty cart state if all items are removed
+Cart data from global state
+
+4) General Requ
+
+Responsive with vertical Stacking on mobile
+Handle price calculations cleanly (subtotal, discount, total)
+Always display updated count in header.
+
+--------------------------------------------------------------------
+
+Checkout Page Specification
+
+1) Checkout Steps (Top Progress Bar)
+Must show 3 steps in top progress indicator
+Login - Enter your details
+Address - Delivery info
+Summary - Review your order
+
+Current Step visually highlighted.
+
+2) General
+form validation must prevent processing next step if invalid
+cart summary should be fetched from global cart state
+responsive with vertical stacking on mobile
+Back to Cart navigates back to cart page
+
+----------------------------------------------------------------------------------
+
+Payment and Thank you page 
+
+1) Actions on Checkout Page
+Back button navigates to previous checkout step (Address)
+Place order button
+- Calls POST /orders API with items, totals, customer details, paymentMethod: "CASH_ON_DELIVERY"
+On success: clear cart
+Redirect to Thank you page at /order-success/:orderId
+Show loading state and error message if API fails
+
+2) Thank you Page
+Display similar confirmation message:
+- "Thank you, your order has been placed."
+Show orderId and total amount
+Include a COntinue Shopping button that redirects to Home page.
