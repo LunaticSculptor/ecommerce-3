@@ -1,0 +1,162 @@
+<div class="checkout-page container">
+
+    <!-- Top Progress Bar -->
+    <div class="checkout-stepper">
+        <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+            <div class="step-circle">1</div>
+            <span class="step-label">Login details</span>
+        </div>
+        <div class="step-line" [class.active]="currentStep > 1"></div>
+
+        <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+            <div class="step-circle">2</div>
+            <span class="step-label">Address</span>
+        </div>
+        <div class="step-line" [class.active]="currentStep > 2"></div>
+
+        <div class="step" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
+            <div class="step-circle">3</div>
+            <span class="step-label">Summary</span>
+        </div>
+    </div>
+
+    <div class="checkout-layout">
+
+        <div class="checkout-main">
+            <!-- Step 1: Login -->
+            <div class="checkout-card step-content" *ngIf="currentStep === 1">
+                <h2>Enter your details</h2>
+                <p class="mb-4 text-secondary">Please sign in or continue as guest to proceed with your order.</p>
+
+                <div *ngIf="!(authService.user$ | async)">
+                    <button class="btn btn-primary" (click)="loginAsMock()">Fast Login (Mock)</button>
+                    <div class="divider text-center my-4">OR</div>
+                    <p>Proceeding as guest...</p>
+                </div>
+
+                <div *ngIf="authService.user$ | async as user">
+                    <div class="alert alert-success">
+                        Signed in as <strong>{{user.email}}</strong>
+                    </div>
+                </div>
+
+                <div class="step-actions mt-5">
+                    <button class="btn btn-primary" (click)="nextStep()">Continue to Address</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Address -->
+            <div class="checkout-card step-content" *ngIf="currentStep === 2">
+                <h2>Delivery Info</h2>
+                <form [formGroup]="addressForm" class="address-form mt-4">
+
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" formControlName="fullName" class="input-base"
+                            [class.invalid]="addressForm.get('fullName')?.invalid && addressForm.get('fullName')?.touched">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" formControlName="email" class="input-base"
+                            [class.invalid]="addressForm.get('email')?.invalid && addressForm.get('email')?.touched">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <input type="text" formControlName="address" class="input-base"
+                            [class.invalid]="addressForm.get('address')?.invalid && addressForm.get('address')?.touched">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label>City</label>
+                            <input type="text" formControlName="city" class="input-base"
+                                [class.invalid]="addressForm.get('city')?.invalid && addressForm.get('city')?.touched">
+                        </div>
+
+                        <div class="form-group flex-1">
+                            <label>Zip Code</label>
+                            <input type="text" formControlName="zipCode" class="input-base"
+                                [class.invalid]="addressForm.get('zipCode')?.invalid && addressForm.get('zipCode')?.touched">
+                        </div>
+                    </div>
+
+                </form>
+
+                <div class="step-actions mt-5">
+                    <button class="btn btn-outline" (click)="prevStep()">Back</button>
+                    <button class="btn btn-primary" (click)="nextStep()">Continue to Summary</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Summary -->
+            <div class="checkout-card step-content" *ngIf="currentStep === 3">
+                <h2>Review your order</h2>
+
+                <div class="review-items mt-4">
+                    <div class="review-item" *ngFor="let item of cartItems">
+                        <img [src]="item.product.imageUrls[0]" alt="thumbnail" class="thumbnail">
+                        <div class="item-info">
+                            <h4>{{item.product.name}}</h4>
+                            <p>Qty: {{item.quantity}} | Color: {{item.selectedColor || 'N/A'}}</p>
+                        </div>
+                        <div class="item-price">\${{item.priceAtPurchase * item.quantity | number:'1.2-2'}}</div>
+                    </div>
+                </div>
+
+                <div class="delivery-address mt-4 p-3 bg-secondary rounded">
+                    <h4>Delivering to:</h4>
+                    <p>{{addressForm.value.fullName}}</p>
+                    <p>{{addressForm.value.address}}, {{addressForm.value.city}} {{addressForm.value.zipCode}}</p>
+                </div>
+
+                <div class="alert alert-danger mt-4" *ngIf="errorMsg">{{errorMsg}}</div>
+
+                <div class="step-actions mt-5">
+                    <button class="btn btn-outline" (click)="prevStep()">Back to Address</button>
+                    <button class="btn btn-primary" [disabled]="isSubmitting" (click)="placeOrder()">
+                        {{ isSubmitting ? 'Placing Order...' : 'Place Order (COD)' }}
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Sidebar Summary always visible -->
+        <div class="checkout-sidebar">
+            <div class="order-summary" *ngIf="cartSummary">
+                <h3>Order Summary</h3>
+                <p class="text-secondary mb-4">{{cartItems.length}} items in cart</p>
+
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span>\${{cartSummary.subtotal | number:'1.2-2'}}</span>
+                </div>
+
+                <div class="summary-line discount" *ngIf="cartSummary.discount > 0">
+                    <span>Discount</span>
+                    <span>-\${{cartSummary.discount | number:'1.2-2'}}</span>
+                </div>
+
+                <div class="summary-line">
+                    <span>Delivery</span>
+                    <span *ngIf="cartSummary.deliveryCharges > 0">\${{cartSummary.deliveryCharges |
+                        number:'1.2-2'}}</span>
+                    <span *ngIf="cartSummary.deliveryCharges === 0" class="free-delivery">Free</span>
+                </div>
+
+                <hr class="divider">
+
+                <div class="summary-line total">
+                    <span>Total To Pay</span>
+                    <span>\${{cartSummary.totalAmount | number:'1.2-2'}}</span>
+                </div>
+
+                <a routerLink="/cart" class="back-link mt-4" *ngIf="currentStep < 3">Return to Cart</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>

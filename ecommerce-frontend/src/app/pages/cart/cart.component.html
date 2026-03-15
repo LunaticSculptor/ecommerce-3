@@ -1,0 +1,117 @@
+<div class="cart-page container">
+
+    <h1 class="page-title">Your Shopping Cart</h1>
+
+    <ng-container *ngIf="items.length > 0; else emptyCart">
+        <div class="cart-layout">
+            <!-- Cart Items -->
+            <div class="cart-items">
+                <div class="cart-item-card" *ngFor="let item of items">
+
+                    <div class="item-image-wrapper">
+                        <img [src]="item.product.imageUrls[0]" [alt]="item.product.name" class="item-img">
+                    </div>
+
+                    <div class="item-details">
+                        <div class="item-header">
+                            <a [routerLink]="['/products', item.product.id]" class="item-name">{{item.product.name}}</a>
+                            <button class="remove-btn" (click)="removeItem(item)" aria-label="Remove item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <span class="item-variant" *ngIf="item.selectedColor">Color: {{item.selectedColor}}</span>
+
+                        <div class="item-price-row">
+                            <div class="price-group">
+                                <span class="current-price">\${{item.priceAtPurchase}}</span>
+                                <span class="original-price"
+                                    *ngIf="item.product.originalPrice">\${{item.product.originalPrice}}</span>
+                                <span class="badge badge-warning discount-badge" *ngIf="item.product.originalPrice">Save
+                                    \${{(item.product.originalPrice - item.priceAtPurchase) | number:'1.0-2'}}</span>
+                            </div>
+                        </div>
+
+                        <div class="item-actions">
+                            <div class="qty-selector">
+                                <button class="qty-btn" (click)="decreaseQuantity(item)"
+                                    [disabled]="item.quantity <= 1">-</button>
+                                <span class="qty-value">{{item.quantity}}</span>
+                                <button class="qty-btn" (click)="increaseQuantity(item)"
+                                    [disabled]="item.quantity >= item.product.stockQuantity">+</button>
+                            </div>
+                            <span class="item-total">Total: \${{item.priceAtPurchase * item.quantity |
+                                number:'1.2-2'}}</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="order-summary" *ngIf="summary">
+                <h2>Order Summary</h2>
+
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span>\${{summary.subtotal | number:'1.2-2'}}</span>
+                </div>
+
+                <div class="summary-line discount" *ngIf="summary.discount > 0">
+                    <span>Discount (10% over $1000)</span>
+                    <span>-\${{summary.discount | number:'1.2-2'}}</span>
+                </div>
+
+                <div class="summary-line">
+                    <span>Delivery Charges</span>
+                    <span *ngIf="summary.deliveryCharges > 0">\${{summary.deliveryCharges | number:'1.2-2'}}</span>
+                    <span *ngIf="summary.deliveryCharges === 0" class="free-delivery">Free</span>
+                </div>
+
+                <div class="delivery-msg" *ngIf="summary.subtotal < 500">
+                    Add \${{500 - summary.subtotal | number:'1.2-2'}} more for FREE delivery
+                </div>
+                <div class="delivery-msg success" *ngIf="summary.subtotal >= 500">
+                    You are eligible for FREE delivery!
+                </div>
+
+                <hr class="divider">
+
+                <div class="summary-line total">
+                    <span>Total Amount</span>
+                    <span>\${{summary.totalAmount | number:'1.2-2'}}</span>
+                </div>
+
+                <div class="savings-text" *ngIf="summary.discount > 0">
+                    You will save \${{summary.discount | number:'1.2-2'}} on this order!
+                </div>
+
+                <button class="btn btn-primary btn-checkout" routerLink="/checkout">Proceed to Checkout</button>
+                <button class="btn btn-outline btn-checkout mt-3" routerLink="/products">Continue Shopping</button>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-template #emptyCart>
+        <div class="empty-state">
+            <div class="empty-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+            </div>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added anything to your cart yet.</p>
+            <button class="btn btn-primary mt-4" routerLink="/products">Start Shopping</button>
+        </div>
+    </ng-template>
+
+</div>

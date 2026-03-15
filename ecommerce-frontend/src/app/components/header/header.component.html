@@ -1,0 +1,59 @@
+<header class="header">
+    <div class="container header-content">
+
+        <div class="logo">
+            <a routerLink="/" class="logo-link">
+                <span class="text-gradient">NexEcom</span>
+            </a>
+        </div>
+
+        <div class="search-container">
+            <form (ngSubmit)="onSearchSubmit()" class="search-form">
+                <input type="text" class="input-base search-input" placeholder="Search products, brands..."
+                    [formControl]="searchControl">
+                <button type="submit" class="search-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="search-dropdown" *ngIf="showDropdown">
+                <div class="search-item" *ngFor="let product of searchResults" (click)="goToProduct(product.id)">
+                    <div class="item-img" [style.background-image]="'url(' + product.imageUrls[0] + ')'"></div>
+                    <div class="item-info">
+                        <span class="item-name">{{product.name}}</span>
+                        <span class="item-price">${{product.price}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="nav-links">
+            <div class="auth-section">
+                <ng-container *ngIf="!isLoggedIn; else loggedInTpl">
+                    <button class="btn btn-outline btn-sm" (click)="loginMock()">Login / Register</button>
+                </ng-container>
+                <ng-template #loggedInTpl>
+                    <div class="user-menu">
+                        <span class="user-email">{{userEmail}}</span>
+                        <button class="btn btn-outline btn-sm" (click)="logout()">Logout</button>
+                    </div>
+                </ng-template>
+            </div>
+
+            <a routerLink="/cart" class="cart-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <span class="cart-badge" *ngIf="cartItemCount > 0">{{cartItemCount}}</span>
+            </a>
+        </nav>
+
+    </div>
+</header>

@@ -1,0 +1,113 @@
+<div class="product-detail-page container">
+
+    <ng-container *ngIf="loading">
+        <div class="skeleton-layout">
+            <app-skeleton-loader height="600px" borderRadius="16px"></app-skeleton-loader>
+            <div class="info-skeletons">
+                <app-skeleton-loader height="40px" width="80%"></app-skeleton-loader>
+                <app-skeleton-loader height="24px" width="40%" class="mt-2"></app-skeleton-loader>
+                <app-skeleton-loader height="100px" width="100%" class="mt-4"></app-skeleton-loader>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="error">
+        <div class="error-state">
+            <h2>Oops, something went wrong.</h2>
+            <p>We couldn't load this product.</p>
+            <button class="btn btn-primary mt-3" (click)="loadProduct(1)">Retry</button>
+            <!-- Hardcoded 1 for mock retry if needed, but router handles id -->
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && !error && product">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a routerLink="/">Home</a>
+            <span class="separator">/</span>
+            <a routerLink="/products" [queryParams]="{category: product.category.slug}">{{product.category.name}}</a>
+            <span class="separator">/</span>
+            <span class="current">{{product.name}}</span>
+        </nav>
+
+        <div class="product-layout">
+            <!-- Gallery -->
+            <div class="gallery-section">
+                <div class="main-image-container">
+                    <img [src]="mainImage" [alt]="product.name" class="main-image">
+                    <span class="badge in-stock-badge" *ngIf="product.inStock">In Stock</span>
+                    <span class="badge out-of-stock-badge" *ngIf="!product.inStock">Out of Stock</span>
+                </div>
+
+                <div class="thumbnail-strip" *ngIf="product.imageUrls.length > 1">
+                    <div *ngFor="let url of product.imageUrls" class="thumbnail" [class.active]="url === mainImage"
+                        (click)="setMainImage(url)">
+                        <img [src]="url" alt="thumbnail">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="details-section">
+                <div class="brand-badge">{{product.brand}}</div>
+                <h1 class="product-title">{{product.name}}</h1>
+
+                <div class="rating-strip">
+                    <span class="stars">★★★★☆ {{product.rating | number:'1.1-1'}}</span>
+                    <span class="reviews">({{product.reviewCount}} reviews)</span>
+                </div>
+
+                <div class="price-section">
+                    <span class="price">\${{product.price}}</span>
+                    <span class="original-price" *ngIf="product.originalPrice">\${{product.originalPrice}}</span>
+                </div>
+
+                <p class="description">{{product.description}}</p>
+
+                <hr class="divider">
+
+                <!-- Options -->
+                <div class="options-section">
+                    <div class="option-group" *ngIf="product.availableColors?.length">
+                        <label>Color</label>
+                        <div class="color-options">
+                            <button *ngFor="let color of product.availableColors" class="color-chip"
+                                [class.active]="selectedColor === color" (click)="selectColor(color)">
+                                {{color}}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="option-group mt-4">
+                        <label>Quantity</label>
+                        <div class="qty-selector">
+                            <button class="qty-btn" (click)="decreaseQuantity()" [disabled]="quantity <= 1">-</button>
+                            <input type="number" class="qty-input" [(ngModel)]="quantity" readonly>
+                            <button class="qty-btn" (click)="increaseQuantity()"
+                                [disabled]="!product.inStock || quantity >= product.stockQuantity">+</button>
+                        </div>
+                        <span class="stock-info" *ngIf="product.inStock && product.stockQuantity < 10">
+                            Only {{product.stockQuantity}} left!
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="action-buttons">
+                    <button class="btn btn-outline cart-btn" [disabled]="!product.inStock" (click)="addToCart()">
+                        Add to Cart
+                    </button>
+                    <button class="btn btn-primary buy-btn" [disabled]="!product.inStock" (click)="buyNow()">
+                        Buy Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- Toast -->
+    <div class="toast" [class.show]="showToast">
+        {{toastMessage}}
+    </div>
+
+</div>

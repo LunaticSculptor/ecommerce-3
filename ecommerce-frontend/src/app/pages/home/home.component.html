@@ -1,0 +1,64 @@
+<div class="home-page">
+
+    <!-- Banner Section -->
+    <section class="banners section-spacing">
+        <div class="banner-grid" *ngIf="!loadingBanners; else bannersSkeleton">
+            <div *ngFor="let banner of banners" class="banner-card" [routerLink]="banner.categoryLink">
+                <img [src]="banner.imageUrl" [alt]="banner.title" class="banner-img" loading="lazy">
+                <div class="banner-overlay">
+                    <h2 class="banner-title">{{banner.title}}</h2>
+                    <button class="btn btn-primary btn-sm mt-3">Shop Now</button>
+                </div>
+            </div>
+        </div>
+        <ng-template #bannersSkeleton>
+            <div class="banner-grid">
+                <app-skeleton-loader *ngFor="let i of [1,2]" height="300px" borderRadius="16px"></app-skeleton-loader>
+            </div>
+        </ng-template>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories section-spacing">
+        <div class="section-header">
+            <h2 class="section-title">Shop by Category</h2>
+        </div>
+
+        <div class="category-grid" *ngIf="!loadingCategories; else categoriesSkeleton">
+            <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{category: cat.slug}"
+                class="category-card">
+                <div class="cat-img-wrapper">
+                    <img [src]="cat.imageUrl" [alt]="cat.name" class="cat-img" loading="lazy">
+                </div>
+                <h3 class="cat-name">{{cat.name}}</h3>
+            </a>
+        </div>
+        <ng-template #categoriesSkeleton>
+            <div class="category-grid">
+                <div class="category-card" *ngFor="let i of [1,2,3,4]">
+                    <app-skeleton-loader height="120px" borderRadius="50%"></app-skeleton-loader>
+                    <app-skeleton-loader height="20px" width="60%" class="mt-3"></app-skeleton-loader>
+                </div>
+            </div>
+        </ng-template>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="featured section-spacing">
+        <div class="section-header">
+            <h2 class="section-title">Featured Products</h2>
+            <a routerLink="/products" class="view-all">View All</a>
+        </div>
+
+        <div class="products-grid" *ngIf="!loadingProducts; else productsSkeleton">
+            <app-product-card *ngFor="let product of featuredProducts" [product]="product"></app-product-card>
+        </div>
+        <ng-template #productsSkeleton>
+            <div class="products-grid">
+                <app-skeleton-loader *ngFor="let i of [1,2,3,4,5,6,7,8]" height="350px"
+                    borderRadius="12px"></app-skeleton-loader>
+            </div>
+        </ng-template>
+    </section>
+
+</div>

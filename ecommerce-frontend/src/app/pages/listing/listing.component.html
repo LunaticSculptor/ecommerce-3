@@ -1,0 +1,79 @@
+<div class="listing-page container">
+
+    <aside class="sidebar" [formGroup]="filterForm">
+        <div class="filter-header">
+            <h3>Filters</h3>
+            <button class="btn-clear" (click)="clearFilters()">Clear All</button>
+        </div>
+
+        <!-- Keyword -->
+        <div class="filter-group">
+            <label class="filter-label">Search</label>
+            <input type="text" formControlName="q" class="input-base" placeholder="Keywords...">
+        </div>
+
+        <!-- Price Range -->
+        <div class="filter-group">
+            <label class="filter-label">Price Range</label>
+            <div class="price-inputs">
+                <input type="number" formControlName="minPrice" class="input-base" placeholder="Min $">
+                <span>-</span>
+                <input type="number" formControlName="maxPrice" class="input-base" placeholder="Max $">
+            </div>
+        </div>
+
+        <!-- Rating -->
+        <div class="filter-group">
+            <label class="filter-label">Minimum Rating</label>
+            <select formControlName="rating" class="input-base">
+                <option [ngValue]="null">Any</option>
+                <option [ngValue]="4">4 Stars & Up</option>
+                <option [ngValue]="3">3 Stars & Up</option>
+                <option [ngValue]="2">2 Stars & Up</option>
+            </select>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="toolbar">
+            <div class="results-count">
+                <span *ngIf="!loading || products.length > 0">Showing {{products.length}} of {{totalElements}}
+                    results</span>
+                <app-skeleton-loader *ngIf="loading && products.length === 0" width="150px"
+                    height="20px"></app-skeleton-loader>
+            </div>
+
+            <div class="sort-control" [formGroup]="filterForm">
+                <label>Sort by:</label>
+                <select formControlName="sort" class="input-base sort-select">
+                    <option *ngFor="let opt of sortOptions" [value]="opt.value">{{opt.label}}</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!loading && products.length === 0">
+            <h3>No products found</h3>
+            <p>Try adjusting your search or filters to find what you're looking for.</p>
+            <button class="btn btn-primary mt-4" (click)="clearFilters()">Clear Filters</button>
+        </div>
+
+        <!-- Grid -->
+        <div class="products-grid">
+            <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
+
+            <!-- Loading Skeletons -->
+            <ng-container *ngIf="loading">
+                <app-skeleton-loader *ngFor="let i of [1,2,3,4,5,6]" height="350px"
+                    borderRadius="12px"></app-skeleton-loader>
+            </ng-container>
+        </div>
+
+        <!-- Load More -->
+        <div class="load-more-container" *ngIf="hasMore && !loading && products.length > 0">
+            <button class="btn btn-outline" (click)="loadMore()">Load More Products</button>
+        </div>
+
+    </main>
+</div>
